@@ -2,11 +2,11 @@
 
 > Weave together organized JSON documents with varied strategies
 
-Weev is used to turn complex ruby objects, like those used in Ruby ORMs (ActiveRecord, Sequel, DataMapper) into simple ones made up of Hashes, Arrays, Strings, and the like. This has been done with the `as_json` method, but that makes multiple representations of the same object very difficult.
+Weev is used to turn complex ruby objects, like those used in Ruby ORMs (ActiveRecord, Sequel, DataMapper) into simple ones made up of Hashes, Arrays, Strings, and the like. This task has traditionally been done with an `as_json` method. Weev is better at declaring multiple representations of the same object, and nesting them within relationships. 
 
 To actually generate raw JSON from the serialized object, check out [MultiJson](https://github.com/intridea/multi_json). 
 
-#### A few assumptions:
+##### A few assumptions:
 
 1. Every key in the JSON representations corresponds to a real ruby method
 2. Objects are *not* prefixed
@@ -67,7 +67,9 @@ You can't just render the associations to JSON, because they would recurse forev
 
 ### Serializer
 
-The whole point of `Weev` is named serialization strategies. For example, you might have a `:commentator` strategy and a `:profile` strategy for Users in the above use case. Here's a simple example:
+The whole point of Weev is *named serialization strategies*. For example, you might have a `:commentator` strategy and a `:profile` strategy for Users in the above use case. 
+
+Here's a simple example of defining serializers:
 
 ```ruby
 class ChildSerializer
@@ -87,7 +89,7 @@ class ParentSerializer
   
   strategy :profile do
     strategy :info
-    attribute :location, format: 'this is passed to method'
+    attribute :custom_method, 'argument 0', 'argument 1'
     relation :children, ChildSerializer.new(:default)
   end
 end
@@ -115,22 +117,10 @@ The suggested location for serializers is in their own folder:
 
 ## Installation
 
-Add this line to your Gemfile:
+If people start using it besides me, I'll put it on Rubygems. For now, just install from the git:
 
 ```ruby
-gem 'weev'
-```
-
-And then:
-
-```
-$ bundle install
-```
-
-Or install it with:
-
-```
-$ gem install weev
+gem 'weev', github: 'aj0strow/weev'
 ```
 
 ## Notes
