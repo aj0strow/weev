@@ -38,7 +38,7 @@ Suppose you have a blog, with Users, Articles and Comments. They might look like
 {
   name: "User Name",
   email: "user-email@github.com",
-  recent_articles: [ 
+  recentArticles: [ 
     // article objects
   ] 
 }
