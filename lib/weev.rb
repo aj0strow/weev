@@ -16,5 +16,13 @@ module Weev
       key
     end
   end
+  
+  def self.namespace(strategy)
+    "_weev_#{strategy}_"
+  end
+  
+  def self.collection?(object)
+    object.respond_to?(:each) && !object.is_a?(Struct)
+  end
 
 end

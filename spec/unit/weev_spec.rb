@@ -42,4 +42,22 @@ describe Weev do
       expect(Weev.camelize(@method_name)).to eq('hello_world')
     end
   end
+  
+  specify '::namespace should make it less copyable' do
+    @strategy = :cool
+    expect(Weev.namespace(@strategy)).to eq('_weev_cool_')
+  end
+  
+  describe '::collection?' do
+    it 'should recognize array' do
+      expect(Weev.collection?([])).to be_true
+    end
+    
+    it 'should not regonize struct' do
+      s = Struct.new(:name)
+      expect(Weev.collection? s.new('Test')).to be_false
+    end
+  end
+  
+  
 end

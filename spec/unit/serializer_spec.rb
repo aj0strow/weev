@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Weev::Serializer do
   
   describe 'inclusion' do
-    before :each do
+    before :all do
       @serializer = TestIncludeSerializer.new
     end
     
@@ -16,8 +16,8 @@ describe Weev::Serializer do
     end
   end
   
-  describe 'methods' do
-    before :each do
+  describe 'attributes' do
+    before :all do
       @serializer = TestAttrsSerializer.new(:default)
     end
     
@@ -28,6 +28,17 @@ describe Weev::Serializer do
         'methodName' => [:method_name, 0, 1, 2]
       }
       expect(@serializer.attrs).to eq(attrs)
+    end
+  end
+  
+  describe 'relation' do
+    before :each do
+      @serializer = TestRelationsSerializer.new(:any_name)
+    end
+    
+    it 'should add relations' do
+      serializer = @serializer.relationships[:relateds]
+      expect(serializer.attrs).to eq({ 'cool' => :cool, 'cold' => :cold }) 
     end
   end
   

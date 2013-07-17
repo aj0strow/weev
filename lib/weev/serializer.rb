@@ -2,10 +2,10 @@ module Weev
   module Serializer
     attr_reader :attrs, :relationships
     
-    def initialize(strategy = nil)
+    def initialize(name = nil)
       @attrs = {}
       @relationships = {}
-      send(strategy) if strategy && respond_to?(strategy)
+      strategy(name) if name
     end
     
     def attributes(*method_names)
@@ -19,6 +19,59 @@ module Weev
       method_info = args.any? ? [method_name, *args] : method_name
       attrs[key] = method_info
     end
+    
+    def serialize(object)
+      if Weev.collection?(object)
+        serialize_all(object)
+      else
+        serialize_one(object)
+      end
+    end
+    
+    def relation(method_name, serializer)
+      relationships[method_name] = serializer
+    end
+    
+    def strategy(name)
+      method_name = Weev.namespace(name)
+      if respond_to?(method_name)
+        send method_name
+      else
+        raise "No strategy for #{self.class} named \"#{name}\"!"
+      end
+    end
 
+    module ClassMethods
+      def strategy(name, &block)
+        define_method(Weev.namespace(name), &block)
+      end
+    end
+    
+    def self.included(base)
+      base.extend(ClassMethods)
+    end
+    
+    private
+    
+    def serialize_all(objects)
+      json = []
+      objects.each do |object|
+        json << serialize(object)
+      end
+      json
+    end
+    
+    def serialize_one(object)
+      json = {}
+      attrs.each do |key, method_info|
+        json[key] = object.send(*method_info)
+      end
+      relationships.each do |method_name, serializer|
+        key = Weev.camelize(method_name)
+        rel = object.send(method_name)
+        json[key] = serializer.serialize(rel)
+      end
+      json
+    end
   end
 end

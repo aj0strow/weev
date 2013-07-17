@@ -2,8 +2,8 @@ require 'rubygems'
 require 'bundler/setup'
 require 'weev'
 
-%w(include attrs).each do |type|
-  require_relative "serializers/test_#{type}_serializer"
+%w(test_include test_attrs parent child test_relations).each do |type|
+  require_relative "serializers/#{type}_serializer"
 end
 
 RSpec.configure do |config|
@@ -22,13 +22,7 @@ class OrmObject
 end
 
 class Parent < OrmObject
-  attr_accessor :first_name, :last_name
-  
-  def children
-    @children ||= 3.times.map do
-      child = Child.new(age: rand(2..14))
-    end 
-  end
+  attr_accessor :first_name, :last_name, :children
   
   def name
     "#{first_name} #{last_name}"

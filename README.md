@@ -1,76 +1,146 @@
 # Weev
 
-> Weave together organized JSON documents
+> Weave together organized JSON documents with varied strategies
 
-There are a number of excellent JSON serializers, presenters, etc out there, I haven't found any that focus on multiple presentations for the same object. Weev uses a simple DSL to allow you to create very complex JSON documents with ease.
+Weev is used to turn complex ruby objects, like those used in Ruby ORMs (ActiveRecord, Sequel, DataMapper) into simple ones made up of Hashes, Arrays, Strings, and the like. This has been done with the `as_json` method, but that makes multiple representations of the same object very difficult.
 
-A few assumptions:
+To actually generate raw JSON from the serialized object, check out [MultiJson](https://github.com/intridea/multi_json). 
 
-1. Every element in the representations corresponds to a real ruby method
+#### A few assumptions:
+
+1. Every key in the JSON representations corresponds to a real ruby method
 2. Objects are *not* prefixed
-3. Objects know how to serialize themselves
+3. Typically 1:1 for seralizer to resource/model
+
+To serialize an object, first create and cache a serializer:
+
+```ruby
+def user_serializer
+  @user_serializer ||= UserSerializer.new(:profile)
+end
+```
+
+And then dump the output to JSON:
+
+```ruby
+@user = User.find(params[:id])
+MultiJson.dump(user_serializer.serialize(@user))
+```
+
+### A Use Case
+
+> Skip this if you're convinced Weev is useful already.
+
+Suppose you have a blog, with Users, Articles and Comments. They might look like the following:
+
+```javascript
+// User
+{
+  name: "User Name",
+  email: "user-email@github.com",
+  recent_articles: [ 
+    // article objects
+  ] 
+}
+
+// Article
+{
+  title: "Interesting Article",
+  author: {
+    // user object
+  },
+  comments: [
+    // comment objects
+  ]
+}
+
+// Comment
+{
+  content: "I really like your article!",
+  commentator: {
+    // user object
+  }
+}
+```
+
+You can't just render the associations to JSON, because they would recurse forever. And it sucks to pass in the methods you want to call by hand each time. You need serializers!
 
 ### Serializer
 
-The Weev serializer takes a serialization strategy, and then can serialize as many objects with that strategy as necessary. You can cascade name strategies as well, and any `methods` or `serialize` commands outside of a strategy are added as defaults. 
+The whole point of `Weev` is named serialization strategies. For example, you might have a `:commentator` strategy and a `:profile` strategy for Users in the above use case. Here's a simple example:
 
 ```ruby
-class UserSerializer
+class ChildSerializer
   include Weev::Serializer
   
-  methods :yay, :hello, :yup, :whats_good
+  strategy :default do
+    attributes :name, :age
+  end
+end
+
+class ParentSerializer
+  include Weev::Serializer
   
-  attribute :special_key, :method_name, 'arg0', 'arg1'
-  
-  for :index do
-    methods :description
-    serialize :likes, LikeSerializer        # default group
+  strategy :info do
+    attributes :name, :email
   end
   
-  for :show do
-    serialize :comments, CommentSerializer, :group
-  end
-  
-  for :stats do
-    index
-    methods :visitor_count, :ad_clicks
+  strategy :profile do
+    strategy :info
+    attribute :location, format: 'this is passed to method'
+    relation :children, ChildSerializer.new(:default)
   end
 end
 ````
 
-And create then with the following:
-
-```ruby
-serializer = UserSerializer.new(:show)
-serializer.json(@user)
-```
+For a full example with Structs, Serializers and the output of serialization see `demo/user_profiles.rb`.
 
 ### Configuration
 
+The default is to turn underscored method names into camelCase keys in the JSON. To not do that, set the option to false:
+
 ```ruby
 Weev.configure do |config|
-  config.camel_case = true
+  config.camel_case = false
 end
+```
+
+The suggested location for serializers is in their own folder:
+
+```
++ app
+  - models
+  - serializers
 ```
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your Gemfile:
 
-    gem 'weev'
+```ruby
+gem 'weev'
+```
 
-And then execute:
+And then:
 
-    $ bundle
+```
+$ bundle install
+```
 
-Or install it yourself as:
+Or install it with:
 
-    $ gem install weev
+```
+$ gem install weev
+```
 
-## Contributing
+## Notes
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
+Would love opinions, issue reports and suggestions. Weev is supposed to be the *easiest* way to generate complex and/or nested JSON documents, and came from a very real need for such a gem.  
+
+Suggested way to contribue:
+
+1. Fork aj0strow/weev
+2. Create a feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Added this feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+5. Create a Pull Request with a little info for me
