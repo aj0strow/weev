@@ -29,6 +29,18 @@ describe 'JSON Serialization' do
       }
       expect(@detailed.serialize(@parent)).to eq(expected)
     end
+    
+    it 'should have a conditioned option' do
+      @conditioned = ParentSerializer.new(:conditioned)
+      expected = {
+        'children' => [
+          { 'age' => 0 },
+          { 'age' => 1 },
+          { 'age' => 2 }
+        ]
+      }
+      expect(@conditioned.serialize(@parent)).to eq(expected)
+    end
   
   end
   

@@ -37,7 +37,7 @@ describe Weev::Serializer do
     end
     
     it 'should add relations' do
-      serializer = @serializer.relationships[:relateds]
+      serializer = @serializer.relationships[:relateds].last
       expect(serializer.attrs).to eq({ 'cool' => :cool, 'cold' => :cold }) 
     end
   end

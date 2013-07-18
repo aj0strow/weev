@@ -22,10 +22,15 @@ class OrmObject
 end
 
 class Parent < OrmObject
-  attr_accessor :first_name, :last_name, :children
+  attr_accessor :first_name, :last_name
+  attr_writer :children
   
   def name
     "#{first_name} #{last_name}"
+  end
+  
+  def children(options = {})
+    @children
   end
 end
 

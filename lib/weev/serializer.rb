@@ -28,8 +28,8 @@ module Weev
       end
     end
     
-    def relation(method_name, serializer)
-      relationships[method_name] = serializer
+    def relation(method_name, *params)
+      relationships[method_name] = params
     end
     
     def strategy(name)
@@ -66,9 +66,10 @@ module Weev
       attrs.each do |key, method_info|
         json[key] = object.send(*method_info)
       end
-      relationships.each do |method_name, serializer|
+      relationships.each do |method_name, ary|
+        *params, serializer = *ary
         key = Weev.camelize(method_name)
-        rel = object.send(method_name)
+        rel = object.send(method_name, *params)
         json[key] = serializer.serialize(rel)
       end
       json

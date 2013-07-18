@@ -95,7 +95,12 @@ class ParentSerializer
 end
 ````
 
-For a full example with Structs, Serializers and the output of serialization see `demo/user_profiles.rb`.
+For a full example with Structs, Serializers and the output of serialization see `demo/user_profiles.rb`. You can also pass in parameters to relation:
+
+```ruby
+relation :invoices, { paid: true }, InvoiceSerializer.new(:list_item)
+# object.invoices({ paid: true })
+```
 
 ### Configuration
 
