@@ -1,6 +1,6 @@
 # Weev
 
-> Weave together organized JSON documents with varied strategies
+![](https://fbcdn-sphotos-e-a.akamaihd.net/hphotos-ak-ash3/946294_10151808875902269_731832683_n.jpg)
 
 Weev is used to turn complex ruby objects, like those used in Ruby ORMs (ActiveRecord, Sequel, DataMapper) into simple ones made up of Hashes, Arrays, Strings, and the like. This task has traditionally been done with an `as_json` method. Weev is better at declaring multiple representations of the same object, and nesting them within relationships. 
 
